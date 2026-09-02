@@ -106,9 +106,9 @@ function render() {
   if (state.order) {
     mask.innerHTML = `<div class="dialog">
       <div class="row"><h2>扫码付款</h2><button class="btn add" onclick="state.open=false;state.order=null;render()">关闭</button></div>
-      <p>单号 ${state.order.no} · 请按 <strong>${window.HW_SHOP.yuan(state.order.total)}</strong> 扫码转账</p>
-      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="微信收款码">
-      <p>打开微信扫一扫，按上面的金额转账。转完把截图发给老师，或现场报单号。</p>
+      <p>单号 ${state.order.no} · 请按 <strong>${window.HW_SHOP.yuan(state.order.total)}</strong> 扫码付款</p>
+      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="学加家学费码">
+      <p>微信或支付宝扫一扫，按上面的金额输入并完成支付。付完把截图发给老师，或现场报单号。</p>
     </div>`;
     return;
   }
