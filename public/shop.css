@@ -110,6 +110,9 @@ h1 { margin: 10px 0 0; font-size: 32px; }
   background: rgba(26, 18, 8, 0.45);
   display: flex; align-items: flex-end; justify-content: center;
 }
+.mask[hidden] {
+  display: none !important;
+}
 .dialog {
   width: min(520px, 100%);
   background: var(--card);
