@@ -1,0 +1,10 @@
+{
+  "name": "hardware-shop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "课程智能硬件商店 · 轻量机独立站",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
