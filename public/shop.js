@@ -70,16 +70,25 @@ function stepper(id, qty) {
 }
 
 function contentsHtml(item) {
-  const rows = item.contents.map((part) => `
+  const rows = item.contents.map((part) => {
+    const qty = part.qty || 1;
+    const name = qty > 1 ? `${part.name} × ${qty}` : part.name;
+    const right = part.gift
+      ? `附赠 / ${part.unit}`
+      : `${window.HW_SHOP.yuan(part.priceCents)} / ${part.unit}`;
+    return `
     <li>
-      <span>${part.name}</span>
-      <span>${window.HW_SHOP.yuan(part.priceCents)} / ${part.unit}</span>
-    </li>`).join('');
+      <span>${name}</span>
+      <span>${right}</span>
+    </li>`;
+  }).join('');
+  const giftCount = item.contents.reduce((sum, part) => sum + (part.gift ? (part.qty || 1) : 0), 0);
+  const partCount = item.contents.reduce((sum, part) => sum + (part.gift ? 0 : (part.qty || 1)), 0);
   return `<div class="contents">
-    <p class="contents-title">套餐内容 · 共 ${item.contents.length} 件</p>
+    <p class="contents-title">套餐内容 · ${partCount} 件元器件，附赠 ${giftCount} 张券</p>
     <ul>${rows}</ul>
     <div class="row">
-      <span>基础款套餐合计</span>
+      <span>基础款套餐</span>
       <strong class="price">${window.HW_SHOP.yuan(item.priceCents)}</strong>
     </div>
   </div>`;

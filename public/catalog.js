@@ -1,8 +1,8 @@
 (function () {
   const parts = [
-    { id: 'smart-board', name: '智能版高性能主控板', priceCents: 24000, unit: '块', summary: '板载彩屏、摄像头、麦克风和多种环境感知，课程智能核心。', why: '光线、室温、语音、视觉都在这块智能版主控上完成。', image: './course-shop/k10-board.jpg', maxQty: 4 },
+    { id: 'smart-board', name: '智能板高性能主控板', priceCents: 24000, unit: '块', summary: '板载彩屏、摄像头、麦克风和多种环境感知，课程智能核心。', why: '光线、室温、语音、视觉都在这块智能板主控上完成。', image: './course-shop/k10-board.jpg', maxQty: 4 },
     { id: 'io-extender', name: '开发专用扩展板', priceCents: 7500, unit: '块', summary: '引出接口，稳定接舵机、灯带、风扇和外接传感器。', why: '做执行件和多路传感时，开发专用扩展更稳。', image: './course-shop/k10-io-extender.jpg', maxQty: 4 },
-    { id: 'usb-c-cable', name: '开发专用数据线', priceCents: 2000, unit: '根', summary: '给智能版主控供电并上传程序，必须能传数据。', why: '上课烧录和充电都靠它。', image: './course-shop/usb-c-cable.jpg', maxQty: 6 },
+    { id: 'usb-c-cable', name: '开发专用数据线', priceCents: 2000, unit: '根', summary: '给智能板主控供电并上传程序，必须能传数据。', why: '上课烧录和充电都靠它。', image: './course-shop/usb-c-cable.jpg', maxQty: 6 },
     { id: 'lipo-battery', name: '高性能锂电池', priceCents: 3600, unit: '块', summary: '插上主控电池口，作品可以离开电脑独立演示。', why: '展演和家庭服役需要脱机供电。', image: './course-shop/lipo-battery.jpg', maxQty: 4 },
     { id: 'servo', name: '高性能微型舵机', priceCents: 1600, unit: '个', summary: '让守护站做出指针、开合或轻轻推一下的动作。', why: '接在验证过的扩展板舵机口。', image: './course-shop/servo-sg90.jpg', maxQty: 8 },
     { id: 'rgb-strip', name: '智能幻彩灯带', priceCents: 2000, unit: '条', summary: '用颜色告诉大家：正常、关注还是要行动。', why: '教室环境信号塔和舒适小屋的可见回应。', image: './course-shop/rgb-strip.jpg', maxQty: 6 },
@@ -17,24 +17,31 @@
     { id: 'print-shell', name: '定制3D打印外壳', priceCents: 4500, unit: '件', summary: '按已验证孔位打印的守护站外壳，不是上课必选项。', why: '纸板和积木也能完成展演。', image: './course-shop/print-shell.jpg', maxQty: 2 },
   ].map((item) => ({ ...item, shelf: 'part' }));
 
-  const listPriceCents = parts.reduce((sum, item) => sum + item.priceCents, 0);
+  const extras = [
+    { id: 'print-coupon', name: '3D打印券', qty: 5, unit: '张', gift: true, priceCents: 0 },
+    { id: 'laser-coupon', name: '激光雕刻券', qty: 5, unit: '张', gift: true, priceCents: 0 },
+  ];
   const kit = {
     id: 'basic-kit',
     name: '基础款套餐',
-    priceCents: listPriceCents,
-    listPriceCents,
+    priceCents: 49800,
+    listPriceCents: parts.reduce((sum, item) => sum + item.priceCents, 0),
     unit: '套',
     shelf: 'kit',
-    summary: '把清单上的元器件一次配齐。点开可看全部内容，套餐价就是全部散件合计。',
+    summary: '清单上的元器件一次配齐，并附赠 5 张 3D 打印券和 5 张激光雕刻券。',
     why: '适合想一次带回家继续做的同学，省去按件挑选。',
     image: './course-shop/guardian-home-kit.jpg',
     maxQty: 3,
-    contents: parts.map((item) => ({
-      id: item.id,
-      name: item.name,
-      priceCents: item.priceCents,
-      unit: item.unit,
-    })),
+    contents: [
+      ...parts.map((item) => ({
+        id: item.id,
+        name: item.name,
+        priceCents: item.priceCents,
+        unit: item.unit,
+        qty: 1,
+      })),
+      ...extras,
+    ],
   };
 
   window.HW_SHOP = {
