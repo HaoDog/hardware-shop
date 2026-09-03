@@ -56,11 +56,7 @@ function contentsHtml(item) {
     <p class="contents-title">套餐内容 · 共 ${item.contents.length} 件</p>
     <ul>${rows}</ul>
     <div class="row">
-      <span>散件合计</span>
-      <span class="list-price">${window.HW_SHOP.yuan(item.listPriceCents)}</span>
-    </div>
-    <div class="row">
-      <span>基础款套餐（八折）</span>
+      <span>基础款套餐合计</span>
       <strong class="price">${window.HW_SHOP.yuan(item.priceCents)}</strong>
     </div>
   </div>`;
@@ -103,9 +99,7 @@ function render() {
     .map((item) => {
       const qty = state.cart[item.id] || 0;
       const isKit = Boolean(item.contents);
-      const priceBlock = isKit
-        ? `<div class="price-block"><span class="list-price">${window.HW_SHOP.yuan(item.listPriceCents)}</span><div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div></div>`
-        : `<div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div>`;
+      const priceBlock = `<div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div>`;
       return `<article class="card ${isKit ? 'kit-card' : ''}">
         <img src="${item.image}" alt="${item.name}">
         <div class="body">

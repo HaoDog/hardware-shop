@@ -21,12 +21,12 @@
   const kit = {
     id: 'basic-kit',
     name: '基础款套餐',
-    priceCents: Math.round(listPriceCents * 0.8),
+    priceCents: listPriceCents,
     listPriceCents,
     unit: '套',
     shelf: 'kit',
-    summary: '把清单上的元器件一次配齐。点开可看全部内容，套餐价按合计打八折。',
-    why: '比按件单买更省，适合想一次带回家继续做的同学。',
+    summary: '把清单上的元器件一次配齐。点开可看全部内容，套餐价就是全部散件合计。',
+    why: '适合想一次带回家继续做的同学，省去按件挑选。',
     image: './course-shop/guardian-home-kit.jpg',
     maxQty: 3,
     contents: parts.map((item) => ({
