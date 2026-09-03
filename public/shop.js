@@ -2,8 +2,7 @@ const KEY = 'hw-shop-cart-v2';
 const state = {
   shelf: 'kit',
   cart: {},
-  open: false,
-  kitOpen: false,
+  sheet: null,
   order: null,
 };
 
@@ -22,6 +21,8 @@ function lines() {
 }
 function count() { return lines().reduce((sum, line) => sum + line.qty, 0); }
 function total() { return lines().reduce((sum, line) => sum + line.product.priceCents * line.qty, 0); }
+function kitProduct() { return window.HW_SHOP.products.find((item) => item.contents); }
+
 function setQty(id, qty) {
   const item = product(id);
   if (!item) return;
@@ -31,22 +32,44 @@ function setQty(id, qty) {
   saveCart();
   render();
 }
-function toggleKit(event) {
-  if (event) event.stopPropagation();
-  state.kitOpen = !state.kitOpen;
+function openSheet(name) {
+  state.sheet = name;
   render();
+}
+function closeSheet() {
+  if (state.sheet === 'pay') state.order = null;
+  state.sheet = null;
+  render();
+}
+function onMask(event) {
+  if (event.target.id === 'mask') closeSheet();
+}
+
+function toast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.hidden = false;
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { el.hidden = true; }, 1600);
+}
+
+function copyText(text, ok) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast(ok)).catch(() => toast('请长按复制'));
+    return;
+  }
+  toast('请长按复制');
 }
 
 function stepper(id, qty) {
   return `<div class="stepper">
-    <button type="button" onclick="setQty('${id}', ${qty - 1})">−</button>
+    <button type="button" aria-label="减少" onclick="setQty('${id}', ${qty - 1})">−</button>
     <span>${qty}</span>
-    <button type="button" onclick="setQty('${id}', ${qty + 1})">+</button>
+    <button type="button" aria-label="增加" onclick="setQty('${id}', ${qty + 1})">+</button>
   </div>`;
 }
 
 function contentsHtml(item) {
-  if (!item.contents) return '';
   const rows = item.contents.map((part) => `
     <li>
       <span>${part.name}</span>
@@ -81,77 +104,114 @@ function buyNow() {
   state.order = { no, total: total() };
   state.cart = {};
   saveCart();
-  state.open = true;
+  state.sheet = 'pay';
   render();
 }
 
 function render() {
-  const shelves = document.getElementById('shelves');
-  shelves.innerHTML = window.HW_SHOP.shelves.map((shelf) => `
-    <button class="shelf ${state.shelf === shelf.id ? 'active' : ''}" onclick="state.shelf='${shelf.id}';render()">
-      <small>✦ ${shelf.id === 'kit' ? 'KITS' : 'PARTS'} ✦</small>
-      <div><strong>${shelf.label}</strong>${shelf.recommend ? '（<span class="recommend">推荐</span>）' : ''}</div>
-      <div>${shelf.hint}</div>
-    </button>`).join('');
+  document.body.classList.toggle('locked', Boolean(state.sheet));
+  const n = count();
+  const sum = window.HW_SHOP.yuan(total());
 
+  document.getElementById('shelves').innerHTML = window.HW_SHOP.shelves.map((shelf) => `
+    <button type="button" class="tab ${state.shelf === shelf.id ? 'active' : ''}" onclick="state.shelf='${shelf.id}';render()">
+      ${shelf.label}${shelf.recommend ? '（<span class="recommend">推荐</span>）' : ''}
+    </button>`).join('');
+  const badge = document.getElementById('cartBadge');
+  if (badge) badge.textContent = n;
   document.getElementById('grid').innerHTML = window.HW_SHOP.products
     .filter((item) => item.shelf === state.shelf)
     .map((item) => {
       const qty = state.cart[item.id] || 0;
       const isKit = Boolean(item.contents);
-      const priceBlock = `<div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div>`;
-      return `<article class="card ${isKit ? 'kit-card' : ''}">
+      return `<article class="card ${isKit ? 'kit-card' : 'part-card'}">
         <img src="${item.image}" alt="${item.name}">
         <div class="body">
-          <div class="row"><h3>${item.name}</h3>${priceBlock}</div>
-          <p>${item.summary}</p>
+          <div class="row"><h3>${item.name}</h3><div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div></div>
+          <p class="summary">${item.summary}</p>
           <p class="why">${item.why}</p>
-          ${isKit && state.kitOpen ? contentsHtml(item) : ''}
-          <div class="row">
-            ${isKit ? `<button class="btn ghost" onclick="toggleKit(event)">${state.kitOpen ? '收起内容' : '查看套餐内容'}</button>` : ''}
-            ${qty ? stepper(item.id, qty) : `<button class="btn add" onclick="setQty('${item.id}', 1)">加入清单</button>`}
-            <span>${item.unit}</span>
+          <div class="actions">
+            ${isKit ? `<button type="button" class="btn ghost" onclick="openSheet('kit')">查看内容</button>` : ''}
+            ${qty ? stepper(item.id, qty) : `<button type="button" class="btn add" onclick="setQty('${item.id}', 1)">加入清单</button>`}
+            <span class="unit">${item.unit}</span>
           </div>
         </div>
       </article>`;
     }).join('');
 
-  const cartBody = `
+  document.getElementById('cart').innerHTML = `
     <p class="eyebrow">✦ CART ✦</p>
     <h2>器材清单</h2>
     ${cartHtml()}
     <p>合计</p>
-    <p class="total">${window.HW_SHOP.yuan(total())}</p>
-    <button class="btn gold" ${count() ? '' : 'disabled'} onclick="buyNow()">一键购买</button>`;
-  document.getElementById('cart').innerHTML = cartBody;
-  document.getElementById('bar').style.display = count() && !state.open ? 'block' : 'none';
-  document.getElementById('bar').innerHTML = `<button class="btn add" style="width:100%" onclick="state.open=true;render()">已选 ${count()} 件 · ${window.HW_SHOP.yuan(total())} · 打开清单</button>`;
+    <p class="total">${sum}</p>
+    <button type="button" class="btn gold" ${n ? '' : 'disabled'} onclick="buyNow()">一键购买</button>`;
+
+  const dock = document.getElementById('dock');
+  dock.hidden = Boolean(state.sheet);
+  dock.innerHTML = `
+    <button type="button" class="dock-meta" onclick="openSheet('cart')">
+      <span>${n ? `已选 ${n} 件 · 点看清单` : '还没选器材'}</span>
+      <strong class="price">${sum}</strong>
+    </button>
+    <button type="button" class="btn gold" ${n ? '' : 'disabled'} onclick="buyNow()">一键购买</button>`;
 
   const mask = document.getElementById('mask');
-  if (!state.open) { mask.hidden = true; return; }
+  if (!state.sheet) { mask.hidden = true; mask.innerHTML = ''; return; }
   mask.hidden = false;
-  if (state.order) {
-    mask.innerHTML = `<div class="dialog">
-      <div class="row"><h2>扫码付款</h2><button class="btn add" onclick="state.open=false;state.order=null;render()">关闭</button></div>
-      <p>单号 ${state.order.no} · 请按 <strong>${window.HW_SHOP.yuan(state.order.total)}</strong> 扫码付款</p>
-      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="学加家学费码">
-      <p>微信或支付宝扫一扫，按上面的金额输入并完成支付。付完把截图发给老师，或现场报单号。</p>
+  mask.setAttribute('onclick', 'onMask(event)');
+
+  if (state.sheet === 'kit') {
+    const kit = kitProduct();
+    mask.innerHTML = `<div class="dialog" onclick="event.stopPropagation()">
+      <div class="handle"></div>
+      <div class="row"><h2>基础款套餐</h2><button type="button" class="btn add" onclick="closeSheet()">关闭</button></div>
+      ${contentsHtml(kit)}
+      <div class="actions">
+        <button type="button" class="btn add" onclick="setQty('basic-kit', (state.cart['basic-kit'] || 0) + 1); closeSheet(); toast('已加入清单')">加入清单</button>
+      </div>
     </div>`;
     return;
   }
-  mask.innerHTML = `<div class="dialog">
-    <div class="row"><h2>器材清单</h2><button class="btn add" onclick="state.open=false;render()">关闭</button></div>
+
+  if (state.sheet === 'pay' && state.order) {
+    const amount = window.HW_SHOP.yuan(state.order.total);
+    mask.innerHTML = `<div class="dialog" onclick="event.stopPropagation()">
+      <div class="handle"></div>
+      <div class="row"><h2>扫码付款</h2><button type="button" class="btn add" onclick="closeSheet()">关闭</button></div>
+      <p>请按下面金额支付 · 单号 ${state.order.no}</p>
+      <p class="pay-amount">${amount}</p>
+      <div class="copy-row">
+        <button type="button" class="btn ghost" onclick="copyText('${amount.replace('¥', '')}', '金额已复制')">复制金额</button>
+        <button type="button" class="btn ghost" onclick="copyText('${state.order.no}', '单号已复制')">复制单号</button>
+      </div>
+      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="学加家学费码">
+      <p>手机上请<strong>长按收款码</strong>，用微信或支付宝识别；电脑上直接扫。付完把截图发给老师，或现场报单号。</p>
+    </div>`;
+    return;
+  }
+
+  mask.innerHTML = `<div class="dialog" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div class="row"><h2>器材清单</h2><button type="button" class="btn add" onclick="closeSheet()">关闭</button></div>
     ${cartHtml()}
     <p>合计</p>
-    <p class="total">${window.HW_SHOP.yuan(total())}</p>
-    <button class="btn gold" ${count() ? '' : 'disabled'} onclick="buyNow()">一键购买</button>
+    <p class="total">${sum}</p>
+    <button type="button" class="btn gold" ${n ? '' : 'disabled'} onclick="buyNow()" style="width:100%">一键购买</button>
   </div>`;
 }
 
 window.state = state;
 window.setQty = setQty;
-window.toggleKit = toggleKit;
+window.openSheet = openSheet;
+window.closeSheet = closeSheet;
+window.onMask = onMask;
 window.buyNow = buyNow;
+window.copyText = copyText;
+window.toast = toast;
 window.render = render;
 loadCart();
+const params = new URLSearchParams(location.search);
+if (params.get('shelf') === 'part') state.shelf = 'part';
+if (params.get('add') && product(params.get('add'))) state.cart[params.get('add')] = 1;
 render();

@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
   const ext = path.extname(file).toLowerCase();
   res.writeHead(200, {
     'Content-Type': types[ext] || 'application/octet-stream',
-    'Cache-Control': ext === '.html' ? 'no-store' : 'public, max-age=86400',
+    'Cache-Control': ['.html', '.css', '.js'].includes(ext) ? 'no-store' : 'public, max-age=86400',
   });
   fs.createReadStream(file).pipe(res);
 });

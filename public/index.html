@@ -2,26 +2,40 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#f5e8c8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
     <title>智能硬件商店</title>
-    <link rel="stylesheet" href="./shop.css" />
+    <link rel="stylesheet" href="./shop.css?v=7" />
   </head>
   <body>
-    <div class="wrap">
-      <header class="hero">
-        <div class="eyebrow">✦ Course Hardware Desk ✦</div>
-        <h1>智能硬件商店</h1>
-        <p>这里只卖这门课用得上的智能版主控、传感器和执行件。不买也能上课、参展；想一次配齐，选基础款套餐（按全部内容合计计价），再扫学费码即可。</p>
-      </header>
-      <div id="shelves" class="shelves"></div>
+    <header class="chrome">
+      <div class="topbar">
+        <div class="brand">
+          <p class="eyebrow">✦ Course Hardware ✦</p>
+          <h1>智能硬件商店</h1>
+        </div>
+        <button type="button" class="cart-chip" id="cartChip" onclick="openSheet('cart')">
+          清单<span class="badge" id="cartBadge">0</span>
+        </button>
+      </div>
+      <nav id="shelves" class="tabs"></nav>
+    </header>
+
+    <main class="wrap">
+      <p class="lede">不买也能上课。想带回家，选基础款套餐，或按件加入清单后扫学费码。</p>
       <div class="layout">
         <div id="grid" class="grid"></div>
         <aside id="cart" class="cart desktop-cart"></aside>
       </div>
-    </div>
-    <div id="bar" class="bar"></div>
+    </main>
+
+    <footer id="dock" class="dock"></footer>
     <div id="mask" class="mask" hidden></div>
-    <script src="./catalog.js"></script>
-    <script src="./shop.js"></script>
+    <div id="toast" class="toast" hidden></div>
+    <script src="./catalog.js?v=7"></script>
+    <script src="./shop.js?v=7"></script>
   </body>
 </html>
