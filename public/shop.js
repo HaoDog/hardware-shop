@@ -1,8 +1,9 @@
-const KEY = 'hw-shop-cart-v1';
+const KEY = 'hw-shop-cart-v2';
 const state = {
   shelf: 'kit',
   cart: {},
   open: false,
+  kitOpen: false,
   order: null,
 };
 
@@ -30,12 +31,38 @@ function setQty(id, qty) {
   saveCart();
   render();
 }
+function toggleKit(event) {
+  if (event) event.stopPropagation();
+  state.kitOpen = !state.kitOpen;
+  render();
+}
 
 function stepper(id, qty) {
   return `<div class="stepper">
     <button type="button" onclick="setQty('${id}', ${qty - 1})">−</button>
     <span>${qty}</span>
     <button type="button" onclick="setQty('${id}', ${qty + 1})">+</button>
+  </div>`;
+}
+
+function contentsHtml(item) {
+  if (!item.contents) return '';
+  const rows = item.contents.map((part) => `
+    <li>
+      <span>${part.name}</span>
+      <span>${window.HW_SHOP.yuan(part.priceCents)} / ${part.unit}</span>
+    </li>`).join('');
+  return `<div class="contents">
+    <p class="contents-title">套餐内容 · 共 ${item.contents.length} 件</p>
+    <ul>${rows}</ul>
+    <div class="row">
+      <span>散件合计</span>
+      <span class="list-price">${window.HW_SHOP.yuan(item.listPriceCents)}</span>
+    </div>
+    <div class="row">
+      <span>基础款套餐（八折）</span>
+      <strong class="price">${window.HW_SHOP.yuan(item.priceCents)}</strong>
+    </div>
   </div>`;
 }
 
@@ -75,13 +102,19 @@ function render() {
     .filter((item) => item.shelf === state.shelf)
     .map((item) => {
       const qty = state.cart[item.id] || 0;
-      return `<article class="card">
+      const isKit = Boolean(item.contents);
+      const priceBlock = isKit
+        ? `<div class="price-block"><span class="list-price">${window.HW_SHOP.yuan(item.listPriceCents)}</span><div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div></div>`
+        : `<div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div>`;
+      return `<article class="card ${isKit ? 'kit-card' : ''}">
         <img src="${item.image}" alt="${item.name}">
         <div class="body">
-          <div class="row"><h3>${item.name}</h3><div class="price">${window.HW_SHOP.yuan(item.priceCents)}</div></div>
+          <div class="row"><h3>${item.name}</h3>${priceBlock}</div>
           <p>${item.summary}</p>
           <p class="why">${item.why}</p>
+          ${isKit && state.kitOpen ? contentsHtml(item) : ''}
           <div class="row">
+            ${isKit ? `<button class="btn ghost" onclick="toggleKit(event)">${state.kitOpen ? '收起内容' : '查看套餐内容'}</button>` : ''}
             ${qty ? stepper(item.id, qty) : `<button class="btn add" onclick="setQty('${item.id}', 1)">加入清单</button>`}
             <span>${item.unit}</span>
           </div>
@@ -123,6 +156,7 @@ function render() {
 
 window.state = state;
 window.setQty = setQty;
+window.toggleKit = toggleKit;
 window.buyNow = buyNow;
 window.render = render;
 loadCart();

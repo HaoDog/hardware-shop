@@ -65,6 +65,14 @@ h1 { margin: 10px 0 0; font-size: 32px; }
 .card .body { padding: 14px; }
 .card h3 { margin: 0; }
 .price { color: #8a6a12; font-size: 20px; font-variant-numeric: tabular-nums; }
+.price-block { text-align: right; }
+.list-price { color: rgba(61, 42, 15, 0.45); font-size: 13px; text-decoration: line-through; font-variant-numeric: tabular-nums; }
+.kit-card { grid-column: 1 / -1; }
+.contents { margin: 12px 0; padding-top: 12px; border-top: 1px dashed rgba(61, 42, 15, 0.16); }
+.contents-title { margin: 0 0 8px; color: var(--teal); font-size: 13px; }
+.contents ul { list-style: none; margin: 0 0 12px; padding: 0; }
+.contents li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(61, 42, 15, 0.06); font-size: 14px; }
+.ghost { background: transparent; color: var(--teal); border: 1px solid rgba(26, 122, 120, 0.28); }
 .why { color: var(--teal); font-size: 12px; }
 .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .btn, .stepper button {
