@@ -194,7 +194,7 @@ function render() {
         <button type="button" class="btn ghost" onclick="copyText('${amount.replace('¥', '')}', '金额已复制')">复制金额</button>
         <button type="button" class="btn ghost" onclick="copyText('${state.order.no}', '单号已复制')">复制单号</button>
       </div>
-      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="学加家学费码">
+      <img class="qr" src="./course-shop/wechat-pay-qr.jpg" alt="博悟空间收款码">
       <p>手机上请<strong>长按收款码</strong>，用微信或支付宝识别；电脑上直接扫。付完把截图发给老师，或现场报单号。</p>
     </div>`;
     return;
